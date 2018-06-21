@@ -2,6 +2,7 @@ from django.shortcuts import render , get_object_or_404
 from django.http import HttpResponse , HttpResponseRedirect , Http404
 from django.urls import reverse
 from django.contrib.auth.models import Permission
+from django.db.models import Q
 
 
 from .models import Blocktable
@@ -16,16 +17,38 @@ def isLoginAndPermission(request):
         return {"isLogin" : False, "username" : ""}
 
 def index(request):
+    for key in request.session.keys():
+        print(key)
+
+    if(request.user.is_superuser):
+        print("Admin")
+        listBlock = Blocktable.objects.order_by('-date')
+        print(listBlock)
+
+    elif request.user.is_authenticated:
+        print("have user")
+        filterlist = Blocktable.objects.filter(Q(isPrivate=0) | Q(authId=request.session["_auth_user_id"]))
+        
+        print(filterlist)
+        listBlock = filterlist.order_by('-date')
+    else:
+        print("Public")
+        filterlist = Blocktable.objects.filter( isPrivate = 0)
+        listBlock = filterlist.order_by('-date')
+        print(listBlock)
+
+
+
+    # print(type(filterlist))
+    # listBlock = filterlist.order_by('-date')
+
+    # listBlock = Blocktable.objects.order_by('-date')
+
+
     
-    listBlock = Blocktable.objects.order_by('-date')
-
-    print(request.user.has_perm("blockapp.add_blocktable"))
-
-
-    try:
-        return render(request,'index.html',{"listblock" : listBlock, "login" : isLoginAndPermission(request) })
-    except:
-        return render(request,'index.html',{"listblock" : listBlock, "login" : isLoginAndPermission(request) })
+    return render(request,'index.html',{"listblock" : listBlock, "login" : isLoginAndPermission(request) })
+    # except:
+    #     return render(request,'index.html',{"listblock" : listBlock, "login" : isLoginAndPermission(request) })
 
 def showBlock(request, blockid):
 
