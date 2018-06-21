@@ -1,0 +1,17 @@
+{% extends "base_block.html" %}
+
+{% block title %}title : {{blockone.title}}{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="title">Title : {{blockone.title}}</div>
+        <div class="content"><p>{{blockone.content}}</p></div>
+        <div class="date">{{blockone.date}}</div>
+    </div>
+    <br>
+    <button><a href="/blockapp">BACK</a></button>
+    {% if login.canEdit %}
+        <button><a href="{% url 'blockapp:updateblockform' blockone.id %}">EDIT</a></button>
+        <button><a href="{% url 'blockapp:deleteblock' blockone.id %}">DELETE</a></button>
+    {% endif %}
+{% endblock %}
